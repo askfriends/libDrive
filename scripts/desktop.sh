@@ -20,12 +20,15 @@ if [ -d "./frontend" ]; then
     git reset --hard
     git pull
     commit_id=$(git rev-parse --short HEAD)
+	package_version=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g')
+	echo $package_version
     cd ".."
 else
     echo -e "\n\nCloning the frontend repositry\n=============================================="
     git clone "https://github.com/libDrive/frontend.git"
     cd "./frontend"
     commit_id=$(git rev-parse --short HEAD)
+	package_version=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g')
     cd ".."
 fi
 
@@ -46,33 +49,33 @@ if [ $os == "win" ] || [ $os == "1" ]; then
     yarn run electron-build --win
     cd ".."
     echo -e "\n\nZipping build folder\n=============================================="
-    if [[ $(uname) =~ "CYGWIN" || $(uname) =~ "MINGW" ]]; then
-        "../bin/7z.exe" a "desktop-win-$commit_id.zip" "./frontend/dist/*"
+    if [[ $(uname) =~ "CYGWIN" || $(uname) =~ "MINGW" || $(uname) =~ "MSYS" ]]; then
+        "../bin/7z.exe" a "libDrive.Desktop.win.v$package_version.zip" "./frontend/dist/*"
     elif [[ $(uname) =~ "Linux" ]]; then
         cd "./frontend/dist"
-        zip -r "desktop-win-$commit_id.zip" "./"
-        mv "desktop-win-$commit_id.zip" "../.."
+        zip -r "libDrive.Desktop.win.v$package_version.zip" "./"
+        mv "libDrive.Desktop.win.v$package_version.zip" "../.."
         cd "../.."
     else
         :
     fi
-    echo -e "\n\nBuild saved to $PWD/desktop-win-$commit_id.zip\n=============================================="
+    echo -e "\n\nBuild saved to $PWD\n=============================================="
 elif [ $os == "linux" ] || [ $os == "2" ]; then
     echo -e "\n\nCreating linux build\n=============================================="
     yarn run electron-build --linux
     cd ".."
     echo -e "\n\nZipping build folder\n=============================================="
-    if [[ $(uname) =~ "CYGWIN" || $(uname) =~ "MINGW" ]]; then
-        "../bin/7z.exe" a "desktop-linux-$commit_id.zip" "./frontend/dist/*"
+    if [[ $(uname) =~ "CYGWIN" || $(uname) =~ "MINGW" || $(uname) =~ "MSYS" ]]; then
+        "../bin/7z.exe" a "libDrive.Desktop.linux.v$package_version.zip" "./frontend/dist/*"
     elif [[ $(uname) =~ "Linux" ]]; then
         cd "./frontend/dist"
-        zip -r "desktop-linux-$commit_id.zip" "./"
-        mv "desktop-linux-$commit_id.zip" "../.."
+        zip -r "libDrive.Desktop.linux.v$package_version.zip" "./"
+        mv "libDrive.Desktop.linux.v$package_version.zip" "../.."
         cd "../.."
     else
         :
     fi
-    echo -e "\n\nBuild saved to $PWD/desktop-linux-$commit_id.zip\n=============================================="
+    echo -e "\n\nBuild saved to $PWD\n=============================================="
 else
     :
 fi
